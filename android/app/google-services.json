@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "732536716684",
+    "project_id": "kasau-notification-flutterfire",
+    "storage_bucket": "kasau-notification-flutterfire.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:732536716684:android:2fdd447f2dfdd3018d2aa9",
+        "android_client_info": {
+          "package_name": "com.example.absence_kasau_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8GNsNIIf7_MYUXrPVV-t0NzeQ9Am1jWE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
