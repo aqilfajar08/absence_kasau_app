@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/core.dart';
 import 'login_page.dart';
+import 'package:flutter/foundation.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -42,8 +43,14 @@ class _SplashPageState extends State<SplashPage> {
               () {
                 if (mounted) {
                   if (snapshot.data! == true) {
+                    if (kDebugMode) {
+                      print('🚀 Navigating to MainPage - User is authenticated');
+                    }
                     context.pushReplacement(const MainPage());
                   } else {
+                    if (kDebugMode) {
+                      print('🔐 Navigating to LoginPage - User is not authenticated');
+                    }
                     context.pushReplacement(const LoginPage());
                   }
                 }
@@ -55,6 +62,9 @@ class _SplashPageState extends State<SplashPage> {
               const Duration(seconds: 2),
               () {
                 if (mounted) {
+                  if (kDebugMode) {
+                    print('❌ Navigating to LoginPage - Error checking authentication');
+                  }
                   context.pushReplacement(const LoginPage());
                 }
               },

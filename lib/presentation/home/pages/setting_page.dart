@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:absence_kasau_app/core/core.dart';
 import 'package:absence_kasau_app/presentation/auth/pages/login_page.dart';
 
@@ -23,12 +24,18 @@ class _SettingPageState extends State<SettingPage> {
             state.maybeMap(
               orElse: () {},
               success: (_) {
+                if (kDebugMode) {
+                  print('✅ Logout successful, navigating to login page');
+                }
                 context.pushReplacement(const LoginPage());
               },
               error: (value) {
+                if (kDebugMode) {
+                  print('❌ Logout error: ${value.error}');
+                }
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(value.error),
+                    content: Text('Logout failed: ${value.error}'),
                     backgroundColor: AppColors.red,
                   ),
                 );
@@ -40,6 +47,9 @@ class _SettingPageState extends State<SettingPage> {
               orElse: () {
                 return Button.filled(
                   onPressed: () {
+                    if (kDebugMode) {
+                      print('🚪 User initiated logout');
+                    }
                     context.read<LogoutBloc>().add(const LogoutEvent.logout());
                   },
                   label: 'Logout',
@@ -47,7 +57,13 @@ class _SettingPageState extends State<SettingPage> {
               },
               loading: () {
                 return const Center(
-                  child: CircularProgressIndicator(),
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Logging out...'),
+                    ],
+                  ),
                 );
               },
             );

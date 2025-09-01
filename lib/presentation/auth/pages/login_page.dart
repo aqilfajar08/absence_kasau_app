@@ -53,6 +53,8 @@ class _LoginPageState extends State<LoginPage> {
                 controller: emailController,
                 label: 'Email Address',
                 showLabel: false,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 prefixIcon: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: SvgPicture.asset(

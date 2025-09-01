@@ -80,7 +80,7 @@ class User {
         name: json["name"],
         position: json["position"],
         department: json["department"],
-        faceEmbedding: json["face_embedding"] ?? json["face_embedded"], // Fixed: Handle both possible field names
+        faceEmbedding: json["face_embedded"] ?? json["face_embedded"], // Fixed: Handle both possible field names
         imageUrl: json["image_url"],
         email: json["email"],
         emailVerifiedAt: json["email_verified_at"] == null ? null : DateTime.parse(json["email_verified_at"]),

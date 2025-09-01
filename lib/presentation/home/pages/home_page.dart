@@ -9,7 +9,7 @@ import 'package:absence_kasau_app/presentation/home/bloc/is_checkin/is_checkin_b
 import 'package:absence_kasau_app/presentation/home/pages/attendance_checkin_page.dart';
 import 'package:absence_kasau_app/presentation/home/pages/attendance_checkout_page.dart';
 import 'package:absence_kasau_app/presentation/home/pages/permission_page.dart';
-import 'package:absence_kasau_app/presentation/home/pages/register_face_attendace_page.dart';
+import 'package:absence_kasau_app/presentation/home/pages/register_face_attendance_page.dart';
 import 'package:location/location.dart';
 
 import '../../../core/core.dart';
@@ -733,7 +733,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                         context.pop();
                                         // Navigate to face registration and refresh when returning
                                         await context.push(
-                                          const RegisterFaceAttendencePage(),
+                                          const RegisterFaceAttendancePage(),
                                         );
                                         // Refresh face embedding status when user returns
                                         _refreshFaceEmbedding();

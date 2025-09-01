@@ -1,10 +1,8 @@
 import 'package:absence_kasau_app/data/datasources/firebase_messaging_remote_datasourece.dart';
 import 'package:absence_kasau_app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:absence_kasau_app/data/datasources/auth_remote_datasource.dart';
 import 'package:absence_kasau_app/data/datasources/attendance_remote_datasource.dart';
 import 'package:absence_kasau_app/data/datasources/permission_remote_datasource.dart';
@@ -27,6 +25,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await FirebaseMessagingRemoteDatasource().initialize();
+  // await FirebaseMessagingRemoteDatasourece().initFCM();
   runApp(const MyApp());
 }
 

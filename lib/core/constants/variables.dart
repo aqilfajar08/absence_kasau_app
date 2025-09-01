@@ -1,4 +1,4 @@
 class Variables {
   static const String appName = 'Kasau Absence Application';
-  static const String baseUrl = 'http://10.82.41.186:8000';
+  static const String baseUrl = 'http://192.168.1.26:8000';
 } 

@@ -14,16 +14,16 @@ import 'package:absence_kasau_app/presentation/home/widgets/face_detector_painte
 
 import '../../../core/core.dart';
 
-class RegisterFaceAttendencePage extends StatefulWidget {
-  const RegisterFaceAttendencePage({super.key});
+class RegisterFaceAttendancePage extends StatefulWidget {
+  const RegisterFaceAttendancePage({super.key});
 
   @override
-  State<RegisterFaceAttendencePage> createState() =>
-      _RegisterFaceAttendencePageState();
+  State<RegisterFaceAttendancePage> createState() =>
+      _RegisterFaceAttendancePageState();
 }
 
-class _RegisterFaceAttendencePageState
-    extends State<RegisterFaceAttendencePage> with TickerProviderStateMixin {
+class _RegisterFaceAttendancePageState
+    extends State<RegisterFaceAttendancePage> with TickerProviderStateMixin {
   List<CameraDescription>? _availableCameras;
   CameraDescription? description;
   CameraController? _controller;

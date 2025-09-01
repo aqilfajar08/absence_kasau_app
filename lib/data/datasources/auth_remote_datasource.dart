@@ -33,21 +33,36 @@ class AuthRemoteDatasource {
 
   //logout
   Future<Either<String, String>> logout() async {
-    final authData = await AuthLocalDatasource().getAuthData();
-    final url = Uri.parse('${Variables.baseUrl}/api/logout');
-    final response = await http.post(
-      url,
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${authData?.accessToken}',
-      },
-    );
+    try {
+      final authData = await AuthLocalDatasource().getAuthData();
+      
+      // If no auth data exists locally, consider logout successful
+      if (authData?.accessToken == null) {
+        return const Right('Logout success (no local auth data)');
+      }
+      
+      final url = Uri.parse('${Variables.baseUrl}/api/logout');
+      final response = await http.post(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${authData?.accessToken}',
+        },
+      ).timeout(const Duration(seconds: 10));
 
-    if (response.statusCode == 200) {
-      return const Right('Logout success');
-    } else {
-      return const Left('Failed to logout');
+      if (response.statusCode == 200) {
+        return const Right('Logout success');
+      } else if (response.statusCode == 401) {
+        // Token is already invalid, consider logout successful
+        return const Right('Logout success (token already invalid)');
+      } else {
+        return Left('Server error: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Network error or timeout - still consider logout successful
+      // since we'll clear local data anyway
+      return const Right('Logout success (network error, local data cleared)');
     }
   }
 
@@ -55,10 +70,10 @@ class AuthRemoteDatasource {
     String embedding,
   ) async {
     final authData = await AuthLocalDatasource().getAuthData();
-    final url = Uri.parse('${Variables.baseUrl}/api/attendace');
+    final url = Uri.parse('${Variables.baseUrl}/api/user/register-face');
     final request = http.MultipartRequest('POST', url)
       ..headers['Authorization'] = 'Bearer ${authData?.accessToken}'
-      ..fields['face_embedding'] = embedding;
+      ..fields['face_embedded'] = embedding;
 
     final response = await request.send();
     final responseString = await response.stream.bytesToString();
