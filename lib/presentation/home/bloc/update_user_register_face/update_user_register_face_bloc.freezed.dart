@@ -108,12 +108,19 @@ class __$$StartedImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$StartedImpl implements _Started {
+class _$StartedImpl with DiagnosticableTreeMixin implements _Started {
   const _$StartedImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'UpdateUserRegisterFaceEvent.started()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'UpdateUserRegisterFaceEvent.started'));
   }
 
   @override
@@ -230,11 +237,11 @@ class __$$UpdateProfileRegisterFaceImplCopyWithImpl<$Res>
         null == embedding
             ? _value.embedding
             : embedding // ignore: cast_nullable_to_non_nullable
-                  as String,
+                as String,
         freezed == image
             ? _value.image
             : image // ignore: cast_nullable_to_non_nullable
-                  as XFile?,
+                as XFile?,
       ),
     );
   }
@@ -242,7 +249,9 @@ class __$$UpdateProfileRegisterFaceImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$UpdateProfileRegisterFaceImpl implements _UpdateProfileRegisterFace {
+class _$UpdateProfileRegisterFaceImpl
+    with DiagnosticableTreeMixin
+    implements _UpdateProfileRegisterFace {
   const _$UpdateProfileRegisterFaceImpl(this.embedding, this.image);
 
   @override
@@ -251,8 +260,22 @@ class _$UpdateProfileRegisterFaceImpl implements _UpdateProfileRegisterFace {
   final XFile? image;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'UpdateUserRegisterFaceEvent.updateProfileRegisterFace(embedding: $embedding, image: $image)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(
+        DiagnosticsProperty(
+          'type',
+          'UpdateUserRegisterFaceEvent.updateProfileRegisterFace',
+        ),
+      )
+      ..add(DiagnosticsProperty('embedding', embedding))
+      ..add(DiagnosticsProperty('image', image));
   }
 
   @override
@@ -274,10 +297,9 @@ class _$UpdateProfileRegisterFaceImpl implements _UpdateProfileRegisterFace {
   @override
   @pragma('vm:prefer-inline')
   _$$UpdateProfileRegisterFaceImplCopyWith<_$UpdateProfileRegisterFaceImpl>
-  get copyWith =>
-      __$$UpdateProfileRegisterFaceImplCopyWithImpl<
-        _$UpdateProfileRegisterFaceImpl
-      >(this, _$identity);
+  get copyWith => __$$UpdateProfileRegisterFaceImplCopyWithImpl<
+    _$UpdateProfileRegisterFaceImpl
+  >(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -464,12 +486,19 @@ class __$$InitialImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$InitialImpl implements _Initial {
+class _$InitialImpl with DiagnosticableTreeMixin implements _Initial {
   const _$InitialImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'UpdateUserRegisterFaceState.initial()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'UpdateUserRegisterFaceState.initial'));
   }
 
   @override
@@ -583,12 +612,19 @@ class __$$LoadingImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$LoadingImpl implements _Loading {
+class _$LoadingImpl with DiagnosticableTreeMixin implements _Loading {
   const _$LoadingImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'UpdateUserRegisterFaceState.loading()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'UpdateUserRegisterFaceState.loading'));
   }
 
   @override
@@ -708,7 +744,7 @@ class __$$ErrorImplCopyWithImpl<$Res>
         null == message
             ? _value.message
             : message // ignore: cast_nullable_to_non_nullable
-                  as String,
+                as String,
       ),
     );
   }
@@ -716,15 +752,23 @@ class __$$ErrorImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ErrorImpl implements _Error {
+class _$ErrorImpl with DiagnosticableTreeMixin implements _Error {
   const _$ErrorImpl(this.message);
 
   @override
   final String message;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'UpdateUserRegisterFaceState.error(message: $message)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'UpdateUserRegisterFaceState.error'))
+      ..add(DiagnosticsProperty('message', message));
   }
 
   @override
@@ -862,7 +906,7 @@ class __$$SuccessImplCopyWithImpl<$Res>
         null == user
             ? _value.user
             : user // ignore: cast_nullable_to_non_nullable
-                  as UserResponseModel,
+                as UserResponseModel,
       ),
     );
   }
@@ -870,15 +914,23 @@ class __$$SuccessImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$SuccessImpl implements _Success {
+class _$SuccessImpl with DiagnosticableTreeMixin implements _Success {
   const _$SuccessImpl(this.user);
 
   @override
   final UserResponseModel user;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'UpdateUserRegisterFaceState.success(user: $user)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'UpdateUserRegisterFaceState.success'))
+      ..add(DiagnosticsProperty('user', user));
   }
 
   @override

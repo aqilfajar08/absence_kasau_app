@@ -212,11 +212,11 @@ class __$$CheckinImplCopyWithImpl<$Res>
         null == latitude
             ? _value.latitude
             : latitude // ignore: cast_nullable_to_non_nullable
-                  as String,
+                as String,
         null == longitude
             ? _value.longitude
             : longitude // ignore: cast_nullable_to_non_nullable
-                  as String,
+                as String,
       ),
     );
   }
@@ -676,7 +676,7 @@ class __$$LoadedImplCopyWithImpl<$Res>
         null == responseModel
             ? _value.responseModel
             : responseModel // ignore: cast_nullable_to_non_nullable
-                  as CheckInOutResponseModel,
+                as CheckInOutResponseModel,
       ),
     );
   }
@@ -832,7 +832,7 @@ class __$$ErrorImplCopyWithImpl<$Res>
         null == message
             ? _value.message
             : message // ignore: cast_nullable_to_non_nullable
-                  as String,
+                as String,
       ),
     );
   }

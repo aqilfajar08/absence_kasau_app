@@ -13,77 +13,92 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: FutureBuilder(
-        future: AuthLocalDatasource().isAuth(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Column(
-              children: [
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(50.0),
-                  child: Assets.images.logoWhite.image(),
-                ),
-                const Spacer(),
-                Assets.images.logoCodeWithBahri.image(height: 70),
-                const SpaceHeight(20.0),
-              ],
-            );
-          }
-
-          if (snapshot.hasData) {
-            // Navigate after splash delay
-            Future.delayed(
-              const Duration(seconds: 2),
-              () {
-                if (mounted) {
-                  if (snapshot.data! == true) {
-                    if (kDebugMode) {
-                      print('🚀 Navigating to MainPage - User is authenticated');
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: Assets.images.splashPage.provider(),
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+          ),
+        ),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: FutureBuilder(
+            future: AuthLocalDatasource().isAuth(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                // Navigate after splash delay
+                Future.delayed(
+                  const Duration(seconds: 2),
+                  () {
+                    if (mounted) {
+                      if (snapshot.data! == true) {
+                        if (kDebugMode) {
+                          print('🚀 Navigating to MainPage - User is authenticated');
+                        }
+                        context.pushReplacement(const MainPage());
+                      } else {
+                        if (kDebugMode) {
+                          print('🔐 Navigating to LoginPage - User is not authenticated');
+                        }
+                        context.pushReplacement(const LoginPage());
+                      }
                     }
-                    context.pushReplacement(const MainPage());
-                  } else {
-                    if (kDebugMode) {
-                      print('🔐 Navigating to LoginPage - User is not authenticated');
+                  },
+                );
+              } else if (snapshot.hasError) {
+                // Handle error case
+                Future.delayed(
+                  const Duration(seconds: 2),
+                  () {
+                    if (mounted) {
+                      if (kDebugMode) {
+                        print('❌ Navigating to LoginPage - Error checking authentication');
+                      }
+                      context.pushReplacement(const LoginPage());
                     }
-                    context.pushReplacement(const LoginPage());
-                  }
-                }
-              },
-            );
-          } else {
-            // Handle error case
-            Future.delayed(
-              const Duration(seconds: 2),
-              () {
-                if (mounted) {
-                  if (kDebugMode) {
-                    print('❌ Navigating to LoginPage - Error checking authentication');
-                  }
-                  context.pushReplacement(const LoginPage());
-                }
-              },
-            );
-          }
+                  },
+                );
+              }
 
-          return Column(
-            children: [
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(50.0),
-                child: Assets.images.logoWhite.image(),
-              ),
-              const Spacer(),
-              Assets.images.logoCodeWithBahri.image(height: 70),
-              const SpaceHeight(20.0),
-            ],
-          );
-        },
+              // Return empty container since we only want the background image
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
       ),
     );
   }

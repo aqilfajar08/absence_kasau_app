@@ -1,3 +1,4 @@
+import 'package:absence_kasau_app/presentation/home/pages/history_page.dart';
 import 'package:flutter/material.dart';
 import 'package:absence_kasau_app/presentation/home/pages/setting_page.dart';
 
@@ -15,7 +16,7 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   final _widgets = [
     const HomePage(),
-    const Center(child: Text('This is history page')),
+    const HistoryPage(),
     const SettingPage(),
     const Center(child: Text('This is profile page')),
   ];

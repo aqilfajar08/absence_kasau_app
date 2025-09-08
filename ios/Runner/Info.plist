@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>GMSApiKey</key>
+	<string>AIzaSyD1ScVc7zDXX1r80AuWyOK57o1vt9FkOFM</string>
 	<key>CFBundleDisplayName</key>
 	<string>Absence Kasau App</string>
 	<key>CFBundleExecutable</key>

@@ -206,14 +206,16 @@ class __$$AddPermissionImplCopyWithImpl<$Res>
   $Res call({Object? permission = null, Object? image = freezed}) {
     return _then(
       _$AddPermissionImpl(
-        permission: null == permission
-            ? _value.permission
-            : permission // ignore: cast_nullable_to_non_nullable
-                  as String,
-        image: freezed == image
-            ? _value.image
-            : image // ignore: cast_nullable_to_non_nullable
-                  as XFile?,
+        permission:
+            null == permission
+                ? _value.permission
+                : permission // ignore: cast_nullable_to_non_nullable
+                    as String,
+        image:
+            freezed == image
+                ? _value.image
+                : image // ignore: cast_nullable_to_non_nullable
+                    as XFile?,
       ),
     );
   }
@@ -792,7 +794,7 @@ class __$$ErrorImplCopyWithImpl<$Res>
         null == message
             ? _value.message
             : message // ignore: cast_nullable_to_non_nullable
-                  as String,
+                as String,
       ),
     );
   }

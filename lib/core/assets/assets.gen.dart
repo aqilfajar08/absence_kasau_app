@@ -33,6 +33,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/image.svg
   SvgGenImage get image => const SvgGenImage('assets/icons/image.svg');
 
+  /// File path: assets/icons/location.svg
+  SvgGenImage get location => const SvgGenImage('assets/icons/location.svg');
+
   /// Directory path: assets/icons/menu
   $AssetsIconsMenuGen get menu => const $AssetsIconsMenuGen();
 
@@ -56,6 +59,7 @@ class $AssetsIconsGen {
     calendar,
     email,
     image,
+    location,
     notificationRounded,
     password,
     reverse,
@@ -90,6 +94,14 @@ class $AssetsImagesGen {
   AssetGenImage get seeLocation =>
       const AssetGenImage('assets/images/see_location.png');
 
+  /// File path: assets/images/splash-page.jpg
+  AssetGenImage get splashPage =>
+      const AssetGenImage('assets/images/splash-page.jpg');
+
+  /// File path: assets/images/log-in.jpg
+  AssetGenImage get logIn =>
+      const AssetGenImage('assets/images/log-in.jpg');
+
   /// File path: assets/images/success.png
   AssetGenImage get success => const AssetGenImage('assets/images/success.png');
 
@@ -102,6 +114,8 @@ class $AssetsImagesGen {
     logoCodeWithBahri,
     logoWhite,
     seeLocation,
+    splashPage,
+    logIn,
     success,
   ];
 }

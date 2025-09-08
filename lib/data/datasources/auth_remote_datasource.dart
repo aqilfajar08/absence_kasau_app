@@ -84,4 +84,20 @@ class AuthRemoteDatasource {
       return const Left('Failed to update profile');
     }
   }
+
+  Future<void> updateFcmToken(String fcmToken) async {
+    final authData = await AuthLocalDatasource().getAuthData();
+    final url = Uri.parse('${Variables.baseUrl}/api/user/update-fcm-token');
+    await http.post(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${authData?.accessToken}',
+      },
+      body: jsonEncode({
+        'fcm_token': fcmToken,
+      }),
+    );
+  }
 }

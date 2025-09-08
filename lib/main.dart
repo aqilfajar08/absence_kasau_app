@@ -1,5 +1,6 @@
 import 'package:absence_kasau_app/data/datasources/firebase_messaging_remote_datasourece.dart';
 import 'package:absence_kasau_app/firebase_options.dart';
+import 'package:absence_kasau_app/presentation/home/bloc/get_attendance_by_date/get_attendance_by_date_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -64,10 +65,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => AddPermissionBloc(PermissionRemoteDatasource()),
         ),
-        // BlocProvider(
-        //   create: (context) =>
-        //       GetAttendanceByDateBloc(AttendanceRemoteDatasource()),
-        // ),
+        BlocProvider(
+          create: (context) =>
+              GetAttendanceByDateBloc(AttendanceRemoteDatasource()),
+        ),
         // BlocProvider(
         //   create: (context) => CheckQrBloc(QrAbsenRemoteDatasource()),
         // ),

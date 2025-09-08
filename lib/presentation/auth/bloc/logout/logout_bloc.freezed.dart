@@ -743,7 +743,7 @@ class __$$ErrorImplCopyWithImpl<$Res>
         null == error
             ? _value.error
             : error // ignore: cast_nullable_to_non_nullable
-                  as String,
+                as String,
       ),
     );
   }

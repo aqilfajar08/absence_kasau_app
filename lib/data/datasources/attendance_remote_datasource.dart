@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:absence_kasau_app/data/models/response/attendance_response_model.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:absence_kasau_app/core/constants/variables.dart';
@@ -130,6 +131,25 @@ class AttendanceRemoteDatasource {
     } else {
       print('❌ Checkout Failed - Status: ${response.statusCode}');
       return Left('Failed to checkout: ${response.statusCode} - ${response.body}');
+    }
+  }
+
+  Future<Either<String, AttendanceResponseModel>> getAttendance(String date) async {
+    final authData = await AuthLocalDatasource().getAuthData();
+    final url = Uri.parse('${Variables.baseUrl}/api/api-attendances?date=$date');
+    final response = await http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${authData?.accessToken}',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return Right(AttendanceResponseModel.fromJson(response.body));
+    } else {
+      return Left('Failed to get attendance: ${response.statusCode} - ${response.body}');
     }
   }
 }
