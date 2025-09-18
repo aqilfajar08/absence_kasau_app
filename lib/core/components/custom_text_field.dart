@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants/constants.dart';
 import 'spaces.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -56,18 +57,32 @@ class CustomTextField extends StatelessWidget {
           maxLines: maxLines,
           validator: validator,
           textInputAction: textInputAction,
+          style: const TextStyle(
+            color: AppColors.primary,
+            fontSize: 16,
+          ),
           decoration: InputDecoration(
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.0),
-              borderSide: const BorderSide(color: Colors.grey),
+              borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.0),
-              borderSide: const BorderSide(color: Colors.grey),
+              borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.0),
+              borderSide: const BorderSide(color: AppColors.primary, width: 2.0),
             ),
             hintText: label,
+            hintStyle: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 16,
+            ),
+            prefixIconColor: AppColors.primary,
+            suffixIconColor: AppColors.primary,
           ),
         ),
       ],

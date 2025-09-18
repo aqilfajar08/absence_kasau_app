@@ -44,60 +44,64 @@ class _SplashPageState extends State<SplashPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.primary, // Fallback background color
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
+          color: AppColors.primary, // Fallback color
           image: DecorationImage(
             image: Assets.images.splashPage.provider(),
             fit: BoxFit.cover,
             alignment: Alignment.center,
+            onError: (exception, stackTrace) {
+              if (kDebugMode) {
+                print('❌ Error loading splash image: $exception');
+              }
+            },
           ),
         ),
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: FutureBuilder(
-            future: AuthLocalDatasource().isAuth(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                // Navigate after splash delay
-                Future.delayed(
-                  const Duration(seconds: 2),
-                  () {
-                    if (mounted) {
-                      if (snapshot.data! == true) {
-                        if (kDebugMode) {
-                          print('🚀 Navigating to MainPage - User is authenticated');
-                        }
-                        context.pushReplacement(const MainPage());
-                      } else {
-                        if (kDebugMode) {
-                          print('🔐 Navigating to LoginPage - User is not authenticated');
-                        }
-                        context.pushReplacement(const LoginPage());
-                      }
-                    }
-                  },
-                );
-              } else if (snapshot.hasError) {
-                // Handle error case
-                Future.delayed(
-                  const Duration(seconds: 2),
-                  () {
-                    if (mounted) {
+        child: FutureBuilder(
+          future: AuthLocalDatasource().isAuth(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              // Navigate after splash delay
+              Future.delayed(
+                const Duration(seconds: 2),
+                () {
+                  if (mounted) {
+                    if (snapshot.data! == true) {
                       if (kDebugMode) {
-                        print('❌ Navigating to LoginPage - Error checking authentication');
+                        print('🚀 Navigating to MainPage - User is authenticated');
+                      }
+                      context.pushReplacement(const MainPage());
+                    } else {
+                      if (kDebugMode) {
+                        print('🔐 Navigating to LoginPage - User is not authenticated');
                       }
                       context.pushReplacement(const LoginPage());
                     }
-                  },
-                );
-              }
+                  }
+                },
+              );
+            } else if (snapshot.hasError) {
+              // Handle error case
+              Future.delayed(
+                const Duration(seconds: 2),
+                () {
+                  if (mounted) {
+                    if (kDebugMode) {
+                      print('❌ Navigating to LoginPage - Error checking authentication');
+                    }
+                    context.pushReplacement(const LoginPage());
+                  }
+                },
+              );
+            }
 
-              // Return empty container since we only want the background image
-              return const SizedBox.shrink();
-            },
-          ),
+            // Return empty container since we only want the background image
+            return const SizedBox.shrink();
+          },
         ),
       ),
     );

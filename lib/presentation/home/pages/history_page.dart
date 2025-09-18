@@ -2,12 +2,13 @@ import 'package:absence_kasau_app/core/components/spaces.dart';
 import 'package:absence_kasau_app/presentation/home/bloc/get_attendance_by_date/get_attendance_by_date_bloc.dart';
 import 'package:absence_kasau_app/presentation/home/widgets/history_attendace.dart';
 import 'package:absence_kasau_app/presentation/home/widgets/history_location.dart';
-import 'package:calendar_timeline_sbk/calendar_timeline.dart';
+import 'package:absence_kasau_app/presentation/home/widgets/indonesian_calendar_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/constants/colors.dart';
+import '../../../core/extensions/date_time_ext.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -30,12 +31,12 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('History'),
+        title: const Text('Riwayat'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(18.0),
         children: [
-          CalendarTimeline(
+          IndonesianCalendarTimeline(
             initialDate: DateTime.now(),
             firstDate: DateTime(2019, 1, 15),
             lastDate: DateTime.now().add(const Duration(days: 7)),
@@ -62,7 +63,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 },
                 error: (message) {
                   return Center(
-                    child: Text(message),
+                    child: Text('Terjadi kesalahan: $message'),
                   );
                 },
                 loading: () => const Center(
@@ -70,7 +71,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 ),
                 empty: () {
                   return const Center(
-                      child: Text('No attendance data available.'));
+                      child: Text('Tidak ada data absensi tersedia.'));
                 },
                 loaded: (attendance) {
                   // Ambil data pertama dari list (atau ubah logika sesuai kebutuhan Anda)
@@ -92,7 +93,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     children: [
                       HistoryAttendance(
                         statusAbsen: 'Datang',
-                        time: attendance.timeIn ?? '',
+                        time: (attendance.timeIn ?? '').toWITAFormat(),
                         date: attendance.dateAttendance.toString(),
                       ),
                       const SpaceHeight(10.0),
@@ -103,12 +104,12 @@ class _HistoryPageState extends State<HistoryPage> {
                       const SpaceHeight(25),
                       attendance.timeOut == null
                           ? const Center(
-                              child: Text('Belum Ada Checkout'),
+                              child: Text('Belum Ada Absensi Pulang'),
                             )
                           : HistoryAttendance(
                               statusAbsen: 'Pulang',
                               isAttendanceIn: false,
-                              time: attendance.timeOut ?? '',
+                              time: (attendance.timeOut ?? '').toWITAFormat(),
                               date: attendance.dateAttendance.toString(),
                             ),
                       const SpaceHeight(10.0),

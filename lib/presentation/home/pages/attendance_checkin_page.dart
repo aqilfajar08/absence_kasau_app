@@ -1,5 +1,6 @@
 import 'package:absence_kasau_app/core/ml/recognition_embedded.dart';
 import 'package:absence_kasau_app/core/ml/recognizer.dart';
+import 'package:absence_kasau_app/core/services/camera_manager.dart';
 import 'package:absence_kasau_app/presentation/home/bloc/checkin_attendance/checkin_attendance_bloc.dart';
 import 'package:absence_kasau_app/presentation/home/bloc/is_checkin/is_checkin_bloc.dart';
 import 'package:absence_kasau_app/presentation/home/pages/attendance_success_page.dart';
@@ -25,10 +26,8 @@ class AttendanceCheckinPage extends StatefulWidget {
 }
 
 class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
-
-  List<CameraDescription>? _availableCameras;
+  final CameraManager _cameraManager = CameraManager();
   CameraDescription? description; // Set after fetching available cameras
-  CameraController? _controller;
   bool isBusy = false;
   late List<RecognitionEmbedding> recognitions = [];
   late Size size;
@@ -37,19 +36,12 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
   String faceStatusMessage = '';
   DateTime? lastProcessTime;
 
-  //TODO declare face detectore
-  late FaceDetector detector;
-
   //TODO declare face recognizer
   late Recognizer recognizer;
 
   @override
   void initState() {
     super.initState();
-
-    //TODO initialize face detector
-    detector = FaceDetector(
-        options: FaceDetectorOptions(performanceMode: FaceDetectorMode.fast));
 
     //TODO initialize face recognizer
     recognizer = Recognizer();
@@ -61,101 +53,24 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
 
   Future<void> _initializeCamera() async {
     try {
-      _availableCameras = await availableCameras();
-      if (_availableCameras == null || _availableCameras!.isEmpty) {
-        if (kDebugMode) debugPrint('No cameras available');
-        return;
-      }
-
-      // Choose camera based on current direction
-      if (camDirec == CameraLensDirection.front) {
-        description = _availableCameras!.firstWhere(
-          (c) => c.lensDirection == CameraLensDirection.front,
-          orElse: () => _availableCameras!.first,
-        );
-      } else {
-        description = _availableCameras!.firstWhere(
-          (c) => c.lensDirection == CameraLensDirection.back,
-          orElse: () => _availableCameras!.first,
-        );
-      }
-
-      // Dispose previous controller if any
-      await _controller?.dispose();
-
-      // Try different resolutions starting from medium (most compatible)
-      List<ResolutionPreset> resolutionsToTry = [
-        ResolutionPreset.medium,
-        ResolutionPreset.low,
-        ResolutionPreset.veryHigh,
-        ResolutionPreset.high,
-      ];
-
-      bool cameraInitialized = false;
-
-      for (ResolutionPreset resolution in resolutionsToTry) {
-        try {
-          if (kDebugMode) {
-            debugPrint('Trying camera resolution: $resolution');
-          }
-
-          _controller = CameraController(
-            description!,
-            resolution,
-            enableAudio: false,
-            imageFormatGroup: ImageFormatGroup.yuv420, // Force YUV420 format
-          );
-
-          await _controller!.initialize();
-
-          if (kDebugMode) {
-            debugPrint('Camera initialized successfully with $resolution');
-            debugPrint('Preview size: ${_controller!.value.previewSize}');
-          }
-
-          cameraInitialized = true;
-          break;
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint('Failed to initialize camera with $resolution: $e');
-          }
-          await _controller?.dispose();
-          _controller = null;
-        }
-      }
-
-      if (!cameraInitialized) {
-        throw Exception('Failed to initialize camera with any resolution');
-      }
-
+      // Initialize camera using camera manager
+      await _cameraManager.initializeCamera(camDirec);
+      
       if (!mounted) return;
 
-      size = _controller!.value.previewSize!;
+      // Get the description from the initialized controller
+      description = _cameraManager.controller?.description;
+      size = _cameraManager.controller?.value.previewSize ?? Size.zero;
 
-      _controller!.startImageStream((CameraImage image) {
-        // Limit processing to ~10 FPS for smooth performance
+      // Start image stream
+      await _cameraManager.startImageStream((CameraImage image) {
         final now = DateTime.now();
         if (!isBusy && (lastProcessTime == null ||
             now.difference(lastProcessTime!).inMilliseconds > 100)) {
           isBusy = true;
           lastProcessTime = now;
-          frame = image; // Set frame first
-
-          // Ensure frame is properly set before processing
-          if (frame != null) {
-            // Run face detection asynchronously to avoid blocking the stream
-            doFaceDetectionOnFrame().catchError((e) {
-              if (kDebugMode) {
-                debugPrint('Async face detection error: $e');
-              }
-              isBusy = false;
-            });
-          } else {
-            if (kDebugMode) {
-              debugPrint('Frame is still null after assignment, skipping detection');
-            }
-            isBusy = false;
-          }
+          frame = image;
+          doFaceDetectionOnFrame();
         }
       });
 
@@ -163,7 +78,9 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
         debugPrint('Camera initialized and image stream started');
       }
 
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     } catch (e) {
       if (kDebugMode) debugPrint('Error initializing camera: $e');
       if (mounted) {
@@ -179,16 +96,16 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
   CameraImage? frame;
   Future<void> doFaceDetectionOnFrame() async {
     try {
-      // Double-check frame is not null before processing
-      if (frame == null) {
-        if (kDebugMode) {
-          debugPrint('Frame is null, skipping face detection');
-        }
-        setState(() {
-          isBusy = false;
-        });
-        return;
+      // Double-check frame is not null before processing and not disposing
+    if (frame == null) {
+      if (kDebugMode) {
+        debugPrint('Frame is null, skipping face detection');
       }
+      setState(() {
+        isBusy = false;
+      });
+      return;
+    }
 
       if (kDebugMode) {
         debugPrint('Processing frame: ${frame!.width}x${frame!.height}, format: ${frame!.format.group}');
@@ -226,7 +143,7 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
       }
 
       //TODO pass InputImage to face detection model and detect faces
-      List<Face> faces = await detector.processImage(inputImage);
+      List<Face> faces = await _cameraManager.faceDetector.processImage(inputImage);
 
       for (Face face in faces) {
         if (kDebugMode) {
@@ -249,9 +166,11 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
       if (kDebugMode) {
         debugPrint('Face detection failed: $e');
       }
-      setState(() {
-        isBusy = false;
-      });
+      if (mounted) {
+        setState(() {
+          isBusy = false;
+        });
+      }
     }
   }
 
@@ -286,30 +205,36 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
         bool isValid = await recognizer.isValidFace(recognition.embedding);
 
         // Perbarui status wajah dan pesan teks berdasarkan hasil pengenalan
-        if (isValid) {
-          setState(() {
-            isFaceRegistered = true;
-            faceStatusMessage = 'Wajah sudah terdaftar';
-          });
-        } else {
-          setState(() {
-            isFaceRegistered = false;
-            faceStatusMessage = 'Wajah belum terdaftar';
-          });
+        if (mounted) {
+          if (isValid) {
+            setState(() {
+              isFaceRegistered = true;
+              faceStatusMessage = 'Wajah sudah terdaftar';
+            });
+          } else {
+            setState(() {
+              isFaceRegistered = false;
+              faceStatusMessage = 'Wajah belum terdaftar';
+            });
+          }
         }
       }
 
-      setState(() {
-        isBusy = false;
-        _scanResults = recognitions;
-      });
+      if (mounted) {
+        setState(() {
+          isBusy = false;
+          _scanResults = recognitions;
+        });
+      }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Face recognition processing failed: $e');
       }
-      setState(() {
-        isBusy = false;
-      });
+      if (mounted) {
+        setState(() {
+          isBusy = false;
+        });
+      }
     }
   }
 
@@ -538,27 +463,38 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
   void _reverseCamera() async {
     if (camDirec == CameraLensDirection.back) {
       camDirec = CameraLensDirection.front;
-      description = _availableCameras![1];
     } else {
       camDirec = CameraLensDirection.back;
-      description = _availableCameras![0];
     }
-    await _controller!.stopImageStream();
-    setState(() {
-      _controller;
-    });
-    // Inisialisasi kamera dengan deskripsi kamera baru
-    _initializeCamera();
+
+    // Switch camera direction using camera manager
+    await _cameraManager.switchCameraDirection(camDirec);
+    
+    if (mounted) {
+      // Update description and restart image stream
+      description = _cameraManager.controller?.description;
+      await _cameraManager.startImageStream((CameraImage image) {
+        final now = DateTime.now();
+        if (!isBusy && (lastProcessTime == null ||
+            now.difference(lastProcessTime!).inMilliseconds > 100)) {
+          isBusy = true;
+          lastProcessTime = now;
+          frame = image;
+          doFaceDetectionOnFrame();
+        }
+      });
+      setState(() {});
+    }
   }
 
   // TODO Show rectangles around detected faces
   Widget buildResult() {
-    if (_scanResults == null || !_controller!.value.isInitialized) {
+    if (_scanResults == null || !_cameraManager.isInitialized) {
       return const Center(child: Text('Camera is not initialized'));
     }
     final Size imageSize = Size(
-      _controller!.value.previewSize!.height,
-      _controller!.value.previewSize!.width,
+      _cameraManager.controller!.value.previewSize!.height,
+      _cameraManager.controller!.value.previewSize!.width,
     );
     CustomPainter painter =
         FaceDetectorPainter(imageSize, _scanResults, camDirec);
@@ -598,7 +534,9 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
       latitude = locationData.latitude;
       longitude = locationData.longitude;
 
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     } on PlatformException catch (e) {
       if (e.code == 'IO_ERROR') {
         debugPrint(
@@ -614,7 +552,7 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
-    if (_controller == null || !_controller!.value.isInitialized) {
+    if (!_cameraManager.isInitialized) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
@@ -623,14 +561,18 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
       child: Scaffold(
         body: Stack(
           children: [
-            Positioned(
-              top: 0.0,
-              left: 0.0,
-              width: size.width,
-              height: size.height,
+            // Full screen camera preview with proper 9:16 aspect ratio
+            Positioned.fill(
               child: AspectRatio(
-                aspectRatio: _controller!.value.aspectRatio,
-                child: CameraPreview(_controller!),
+                aspectRatio: 9 / 16, // 9:16 aspect ratio for portrait orientation
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: _cameraManager.controller!.value.previewSize!.height,
+                    height: _cameraManager.controller!.value.previewSize!.width,
+                    child: CameraPreview(_cameraManager.controller!),
+                  ),
+                ),
               ),
             ),
             Positioned(
@@ -698,10 +640,8 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
                             onTap: () async {
                               // Safely pause camera stream before navigating
                               try {
-                                if (_controller != null &&
-                                    _controller!.value.isInitialized &&
-                                    _controller!.value.isStreamingImages) {
-                                  await _controller!.stopImageStream();
+                                if (_cameraManager.isStreaming) {
+                                  await _cameraManager.stopImageStream();
                                 }
                               } catch (e) {
                                 if (kDebugMode) {
@@ -728,17 +668,16 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
                               navFuture.whenComplete(() async {
                                 try {
                                   if (!mounted) return;
-                                  if (_controller != null &&
-                                      _controller!.value.isInitialized &&
-                                      !_controller!.value.isStreamingImages) {
-                                    _controller!.startImageStream((image) {
+                                  if (_cameraManager.isInitialized && !_cameraManager.isStreaming) {
+                                    await _cameraManager.startImageStream((image) {
+                                      if (!mounted) return;
                                       if (!isBusy) {
                                         isBusy = true;
                                         frame = image;
                                         doFaceDetectionOnFrame();
                                       }
                                     });
-                                  } else if (_controller == null) {
+                                  } else if (!_cameraManager.isInitialized) {
                                     // If controller was disposed elsewhere, re-initialize
                                     await _initializeCamera();
                                   }
@@ -777,12 +716,12 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
                                 );
                               },
                               loaded: (responseModel) {
+                                // Simple navigation like checkout page
                                 context.pushReplacement(
-                                    const AttendanceSuccessPage(
-                                  status: 'Berhasil Checkin',
-                                ));
-                                // context.pushReplacement(
-                                //     const MainPage());
+                                  const AttendanceSuccessPage(
+                                    status: 'Berhasil Checkin',
+                                  ),
+                                );
                               },
                             );
                           },
@@ -821,10 +760,11 @@ class _AttendanceCheckinPageState extends State<AttendanceCheckinPage> {
     );
   }
 
+
   @override
   void dispose() {
-    _controller?.dispose();
-    detector.close();
+    // Camera manager will handle disposal safely
+    // Don't dispose here as other pages might need the camera
     super.dispose();
   }
 }

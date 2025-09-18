@@ -7,6 +7,7 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
 import 'package:absence_kasau_app/core/ml/recognition_embedded.dart';
 import 'package:absence_kasau_app/core/ml/recognizer.dart';
+import 'package:absence_kasau_app/core/services/camera_manager.dart';
 import 'package:absence_kasau_app/data/datasources/auth_local_datasource.dart';
 import 'package:absence_kasau_app/presentation/home/bloc/update_user_register_face/update_user_register_face_bloc.dart';
 import 'package:absence_kasau_app/presentation/home/pages/main_page.dart';
@@ -24,23 +25,14 @@ class RegisterFaceAttendancePage extends StatefulWidget {
 
 class _RegisterFaceAttendancePageState
     extends State<RegisterFaceAttendancePage> with TickerProviderStateMixin {
-  List<CameraDescription>? _availableCameras;
+  final CameraManager _cameraManager = CameraManager();
   CameraDescription? description;
-  CameraController? _controller;
 
   CameraLensDirection camDirec = CameraLensDirection.front;
 
-  // Animation controller for scanning effect
-
-
   bool register = false;
-
   late Size size;
-
   late List<RecognitionEmbedding> recognitions = [];
-
-  //TODO declare face detectore
-  late FaceDetector detector;
 
   //TODO declare face recognizer
   late Recognizer recognizer;
@@ -69,17 +61,11 @@ class _RegisterFaceAttendancePageState
   void initState() {
     super.initState();
 
-
-
-    //TODO initialize face detector
-    detector = FaceDetector(
-        options: FaceDetectorOptions(performanceMode: FaceDetectorMode.fast));
-
     //TODO initialize face recognizer
     recognizer = Recognizer();
 
     if (kDebugMode) {
-      debugPrint('Face detector and recognizer initialized');
+      debugPrint('Face recognizer initialized');
     }
 
     _initializeCamera();
@@ -87,50 +73,25 @@ class _RegisterFaceAttendancePageState
 
   @override
   void dispose() {
-    _controller?.dispose();
-    detector.close();
+    // Camera manager will handle disposal safely
+    // Don't dispose here as other pages might need the camera
     super.dispose();
   }
 
   void _initializeCamera() async {
     try {
-      _availableCameras = await availableCameras();
-
-      if (_availableCameras == null || _availableCameras!.isEmpty) {
-        if (kDebugMode) {
-          debugPrint('No cameras available');
-        }
-        return;
-      }
-
-      // Find the appropriate camera
-      if (camDirec == CameraLensDirection.front) {
-        description = _availableCameras!.firstWhere(
-          (camera) => camera.lensDirection == CameraLensDirection.front,
-          orElse: () => _availableCameras!.first,
-        );
-      } else {
-        description = _availableCameras!.firstWhere(
-          (camera) => camera.lensDirection == CameraLensDirection.back,
-          orElse: () => _availableCameras!.first,
-        );
-      }
-
-      // Dispose previous controller if exists
-      await _controller?.dispose();
-      _controller = CameraController(
-        description!,
-        ResolutionPreset.high,
-        enableAudio: false,
-      );
-
-      await _controller!.initialize();
-
+      // Initialize camera using camera manager
+      await _cameraManager.initializeCamera(camDirec);
+      
       if (!mounted) {
         return;
       }
 
-      _controller!.startImageStream((CameraImage image) {
+      // Get the description from the initialized controller
+      description = _cameraManager.controller?.description;
+
+      // Start image stream
+      await _cameraManager.startImageStream((CameraImage image) {
         // Limit processing to ~10 FPS for smooth performance
         final now = DateTime.now();
         if (!isBusy && (lastProcessTime == null ||
@@ -327,7 +288,7 @@ class _RegisterFaceAttendancePageState
         inputImage = getInputImageSimple();
       }
 
-      List<Face> faces = await detector.processImage(inputImage);
+      List<Face> faces = await _cameraManager.faceDetector.processImage(inputImage);
 
       if (kDebugMode) {
         debugPrint('Face detection: Found ${faces.length} faces');
@@ -515,30 +476,45 @@ class _RegisterFaceAttendancePageState
       camDirec = CameraLensDirection.back;
     }
 
-    // Stop the current image stream before switching cameras
-    await _controller?.stopImageStream();
-
-    // Reinitialize camera with new direction
-    _initializeCamera();
+    // Switch camera direction using camera manager
+    await _cameraManager.switchCameraDirection(camDirec);
+    
+    if (mounted) {
+      // Update description and restart image stream
+      description = _cameraManager.controller?.description;
+      await _cameraManager.startImageStream((CameraImage image) {
+        final now = DateTime.now();
+        if (!isBusy && (lastProcessTime == null ||
+            now.difference(lastProcessTime!).inMilliseconds > 100)) {
+          isBusy = true;
+          lastProcessTime = now;
+          frame = image;
+          doFaceDetectionOnFrame();
+        }
+      });
+      setState(() {});
+    }
   }
 
   void _takePicture() async {
-    await _controller!.takePicture();
-    if (mounted) {
-      setState(() {
-        register = true;
-      });
+    if (_cameraManager.controller != null) {
+      await _cameraManager.controller!.takePicture();
+      if (mounted) {
+        setState(() {
+          register = true;
+        });
+      }
     }
   }
 
   Widget buildResult() {
-    if (_controller == null || !_controller!.value.isInitialized) {
+    if (!_cameraManager.isInitialized || _cameraManager.controller == null) {
       return const SizedBox.shrink(); // Return empty widget instead of debug text
     }
 
     final Size imageSize = Size(
-      _controller!.value.previewSize!.width,
-      _controller!.value.previewSize!.height,
+      _cameraManager.controller!.value.previewSize!.width,
+      _cameraManager.controller!.value.previewSize!.height,
     );
 
     // Face detection overlay with scanning animation
@@ -610,7 +586,7 @@ class _RegisterFaceAttendancePageState
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
-    if (_controller == null) {
+    if (!_cameraManager.isInitialized) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
@@ -619,14 +595,18 @@ class _RegisterFaceAttendancePageState
       child: Scaffold(
         body: Stack(
           children: [
-            Positioned(
-              top: 0.0,
-              left: 0.0,
-              width: size.width,
-              height: size.height,
+            // Full screen camera preview with proper 9:16 aspect ratio
+            Positioned.fill(
               child: AspectRatio(
-                aspectRatio: _controller!.value.aspectRatio,
-                child: CameraPreview(_controller!),
+                aspectRatio: 9 / 16, // 9:16 aspect ratio for portrait orientation
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: _cameraManager.controller!.value.previewSize!.height,
+                    height: _cameraManager.controller!.value.previewSize!.width,
+                    child: CameraPreview(_cameraManager.controller!),
+                  ),
+                ),
               ),
             ),
             Positioned(
@@ -673,5 +653,3 @@ class _RegisterFaceAttendancePageState
     );
   }
 }
-
-

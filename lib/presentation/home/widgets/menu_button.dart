@@ -35,6 +35,10 @@ class MenuButton extends StatelessWidget {
               iconPath,
               width: 40.0,
               height: 40.0,
+              colorFilter: const ColorFilter.mode(
+                AppColors.iconStroke,
+                BlendMode.srcIn,
+              ),
             ),
             const SpaceHeight(4.0),
             Text(

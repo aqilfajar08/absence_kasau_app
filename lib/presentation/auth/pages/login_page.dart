@@ -79,111 +79,120 @@ class _LoginPageState extends State<LoginPage>
             opacity: _fadeAnimation,
             child: SlideTransition(
               position: _slideAnimation,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.15),
-                      CustomTextField(
-                        controller: emailController,
-                        label: 'Email Address',
-                        showLabel: false,
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                        prefixIcon: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SvgPicture.asset(
-                            Assets.icons.email.path,
-                            height: 20,
-                            width: 20,
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CustomTextField(
+                          controller: emailController,
+                          label: 'Email Address',
+                          showLabel: false,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          prefixIcon: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SvgPicture.asset(
+                              Assets.icons.email.path,
+                              height: 20,
+                              width: 20,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.primary,
+                                BlendMode.srcIn,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                      const SpaceHeight(20),
-                      CustomTextField(
-                        controller: passwordController,
-                        label: 'Password',
-                        showLabel: false,
-                        obscureText: !isShowPassword,
-                        prefixIcon: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SvgPicture.asset(
-                            Assets.icons.password.path,
-                            height: 20,
-                            width: 20,
+                        const SpaceHeight(20),
+                        CustomTextField(
+                          controller: passwordController,
+                          label: 'Password',
+                          showLabel: false,
+                          obscureText: !isShowPassword,
+                          prefixIcon: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SvgPicture.asset(
+                              Assets.icons.password.path,
+                              height: 20,
+                              width: 20,    
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.primary,
+                                BlendMode.srcIn,
+                              ),
+                            ),
                           ),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            isShowPassword ? Icons.visibility_off : Icons.visibility,
-                            color: AppColors.grey,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              isShowPassword = !isShowPassword;
-                            });
-                          },
-                        ),
-                      ),
-                      const SpaceHeight(40),
-                      BlocListener<LoginBloc, LoginState>(
-                        listener: (context, state) {
-                          state.maybeWhen(
-                            orElse: () {},
-                            success: (data) async {
-                              try {
-                                await AuthLocalDatasource().saveAuthData(data);
-                                if (context.mounted) {
-                                  context.pushReplacement(const MainPage());
-                                }
-                              } catch (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Failed to save login data: $e'),
-                                      backgroundColor: AppColors.red,
-                                    ),
-                                  );
-                                }
-                              }
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              isShowPassword ? Icons.visibility_off : Icons.visibility,
+                              color: AppColors.primary,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                isShowPassword = !isShowPassword;
+                              });
                             },
-                            error: (message) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(message),
-                                  backgroundColor: AppColors.red,
-                                ),
-                              );
-                            },
-                          );
-                        },
-                        child: BlocBuilder<LoginBloc, LoginState>(
-                          builder: (context, state) {
-                            return state.maybeWhen(
-                              orElse: () {
-                                return Button.filled(
-                                  onPressed: () {
-                                    context.read<LoginBloc>().add(
-                                      LoginEvent.login(
-                                        emailController.text,
-                                        passwordController.text,
+                          ),
+                        ),
+                        const SpaceHeight(60),
+                        BlocListener<LoginBloc, LoginState>(
+                          listener: (context, state) {
+                            state.maybeWhen(
+                              orElse: () {},
+                              success: (data) async {
+                                try {
+                                  await AuthLocalDatasource().saveAuthData(data);
+                                  if (context.mounted) {
+                                    context.pushReplacement(const MainPage());
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Gagal menyimpan data login: $e'),
+                                        backgroundColor: AppColors.red,
                                       ),
                                     );
-                                  },
-                                  label: 'Sign In',
-                                );
+                                  }
+                                }
                               },
-                              loading: () {
-                                return const Center(child: CircularProgressIndicator());
+                              error: (message) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(message),
+                                    backgroundColor: AppColors.red,
+                                  ),
+                                );
                               },
                             );
                           },
+                          child: BlocBuilder<LoginBloc, LoginState>(
+                            builder: (context, state) {
+                              return state.maybeWhen(
+                                orElse: () {
+                                  return Button.filled(
+                                    onPressed: () {
+                                      context.read<LoginBloc>().add(
+                                        LoginEvent.login(
+                                          emailController.text,
+                                          passwordController.text,
+                                        ),
+                                      );
+                                    },
+                                    label: 'Sign In',
+                                  );
+                                },
+                                loading: () {
+                                  return const Center(child: CircularProgressIndicator());
+                                },
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -47,5 +47,32 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- Camera Permission -->
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access for face recognition attendance and taking profile photos</string>
+	
+	<!-- Location Permissions -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs location access to verify your attendance location and ensure you're at the correct workplace</string>
+	
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs location access to verify your attendance location and ensure you're at the correct workplace</string>
+	
+	<!-- Photo Library Permission -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs photo library access to select profile pictures and save attendance photos</string>
+	
+	<!-- Microphone Permission (required by camera on some iOS versions) -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs microphone access for camera functionality during face recognition</string>
+	
+	<!-- Face ID Permission (if using biometric authentication) -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>This app uses Face ID for secure attendance verification</string>
+	
+	<!-- Notification Permission -->
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>This app sends notifications about attendance reminders and important updates</string>
 </dict>
 </plist>

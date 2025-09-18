@@ -132,6 +132,9 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
       size = _controller!.value.previewSize!;
 
       _controller!.startImageStream((CameraImage image) {
+        // Check if widget is still mounted before processing
+        if (!mounted) return;
+        
         // Limit processing to ~10 FPS for smooth performance
         final now = DateTime.now();
         if (!isBusy && (lastProcessTime == null ||
@@ -147,13 +150,17 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
               if (kDebugMode) {
                 debugPrint('Async face detection error: $e');
               }
-              isBusy = false;
+              if (mounted) {
+                isBusy = false;
+              }
             });
           } else {
             if (kDebugMode) {
               debugPrint('Frame is still null after assignment, skipping detection');
             }
-            isBusy = false;
+            if (mounted) {
+              isBusy = false;
+            }
           }
         }
       });
@@ -162,7 +169,9 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
         debugPrint('Camera initialized and image stream started');
       }
 
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     } catch (e) {
       if (kDebugMode) debugPrint('Error initializing camera: $e');
       if (mounted) {
@@ -248,9 +257,11 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
       if (kDebugMode) {
         debugPrint('Face detection failed: $e');
       }
-      setState(() {
-        isBusy = false;
-      });
+      if (mounted) {
+        setState(() {
+          isBusy = false;
+        });
+      }
     }
   }
 
@@ -285,30 +296,36 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
         bool isValid = await recognizer.isValidFace(recognition.embedding);
 
         // Perbarui status wajah dan pesan teks berdasarkan hasil pengenalan
-        if (isValid) {
-          setState(() {
-            isFaceRegistered = true;
-            faceStatusMessage = 'Wajah sudah terdaftar';
-          });
-        } else {
-          setState(() {
-            isFaceRegistered = false;
-            faceStatusMessage = 'Wajah belum terdaftar';
-          });
+        if (mounted) {
+          if (isValid) {
+            setState(() {
+              isFaceRegistered = true;
+              faceStatusMessage = 'Wajah sudah terdaftar';
+            });
+          } else {
+            setState(() {
+              isFaceRegistered = false;
+              faceStatusMessage = 'Wajah belum terdaftar';
+            });
+          }
         }
       }
 
-      setState(() {
-        isBusy = false;
-        _scanResults = recognitions;
-      });
+      if (mounted) {
+        setState(() {
+          isBusy = false;
+          _scanResults = recognitions;
+        });
+      }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Face recognition processing failed: $e');
       }
-      setState(() {
-        isBusy = false;
-      });
+      if (mounted) {
+        setState(() {
+          isBusy = false;
+        });
+      }
     }
   }
 
@@ -495,7 +512,7 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
           orElse: () {
             // If state is not success, proceed with checkout anyway
             _proceedWithCheckout();
-          },
+          },  
           success: (data) {
             if (data.isCheckIn) {
               // User has checked in, proceed with checkout
@@ -563,9 +580,11 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
       description = _availableCameras![0];
     }
     await _controller!.stopImageStream();
-    setState(() {
-      _controller;
-    });
+    if (mounted) {
+      setState(() {
+        _controller;
+      });
+    }
     // Inisialisasi kamera dengan deskripsi kamera baru
     _initializeCamera();
   }
@@ -594,10 +613,12 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
   Future<void> getCurrentPosition() async {
     if (isLocationLoading) return; // Prevent multiple simultaneous calls
 
-    setState(() {
-      isLocationLoading = true;
-      locationStatus = 'Mendapatkan lokasi...';
-    });
+    if (mounted) {
+      setState(() {
+        isLocationLoading = true;
+        locationStatus = 'Mendapatkan lokasi...';
+      });
+    }
 
     try {
       Location location = Location();
@@ -608,15 +629,19 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
 
       serviceEnabled = await location.serviceEnabled();
       if (!serviceEnabled) {
-        setState(() {
-          locationStatus = 'Mengaktifkan layanan lokasi...';
-        });
+        if (mounted) {
+          setState(() {
+            locationStatus = 'Mengaktifkan layanan lokasi...';
+          });
+        }
         serviceEnabled = await location.requestService();
         if (!serviceEnabled) {
-          setState(() {
-            locationStatus = 'Layanan lokasi tidak aktif';
-            isLocationLoading = false;
-          });
+          if (mounted) {
+            setState(() {
+              locationStatus = 'Layanan lokasi tidak aktif';
+              isLocationLoading = false;
+            });
+          }
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -632,15 +657,19 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
 
       permissionGranted = await location.hasPermission();
       if (permissionGranted == PermissionStatus.denied) {
-        setState(() {
-          locationStatus = 'Meminta izin lokasi...';
-        });
+        if (mounted) {
+          setState(() {
+            locationStatus = 'Meminta izin lokasi...';
+          });
+        }
         permissionGranted = await location.requestPermission();
         if (permissionGranted != PermissionStatus.granted) {
-          setState(() {
-            locationStatus = 'Izin lokasi ditolak';
-            isLocationLoading = false;
-          });
+          if (mounted) {
+            setState(() {
+              locationStatus = 'Izin lokasi ditolak';
+              isLocationLoading = false;
+            });
+          }
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -654,9 +683,11 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
         }
       }
 
-      setState(() {
-        locationStatus = 'Mengambil koordinat...';
-      });
+      if (mounted) {
+        setState(() {
+          locationStatus = 'Mengambil koordinat...';
+        });
+      }
 
       locationData = await location.getLocation();
       latitude = locationData.latitude;
@@ -669,16 +700,20 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
         debugPrint('   Accuracy: ${locationData.accuracy}');
       }
 
-      setState(() {
-        locationStatus = 'Lokasi berhasil didapat';
-        isLocationLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          locationStatus = 'Lokasi berhasil didapat';
+          isLocationLoading = false;
+        });
+      }
 
     } on PlatformException catch (e) {
-      setState(() {
-        locationStatus = 'Error: ${e.message}';
-        isLocationLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          locationStatus = 'Error: ${e.message}';
+          isLocationLoading = false;
+        });
+      }
 
       if (kDebugMode) {
         if (e.code == 'IO_ERROR') {
@@ -699,10 +734,12 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
         );
       }
     } catch (e) {
-      setState(() {
-        locationStatus = 'Error tidak dikenal';
-        isLocationLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          locationStatus = 'Error tidak dikenal';
+          isLocationLoading = false;
+        });
+      }
 
       if (kDebugMode) {
         debugPrint('An unknown error occurred: $e');
@@ -732,14 +769,18 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
       child: Scaffold(
         body: Stack(
           children: [
-            Positioned(
-              top: 0.0,
-              left: 0.0,
-              width: size.width,
-              height: size.height,
+            // Full screen camera preview with proper 9:16 aspect ratio
+            Positioned.fill(
               child: AspectRatio(
-                aspectRatio: _controller!.value.aspectRatio,
-                child: CameraPreview(_controller!),
+                aspectRatio: 9 / 16, // 9:16 aspect ratio for portrait orientation
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: _controller!.value.previewSize!.height,
+                    height: _controller!.value.previewSize!.width,
+                    child: CameraPreview(_controller!),
+                  ),
+                ),
               ),
             ),
             Positioned(
@@ -841,6 +882,7 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
                                       _controller!.value.isInitialized &&
                                       !_controller!.value.isStreamingImages) {
                                     _controller!.startImageStream((image) {
+                                      if (!mounted) return;
                                       if (!isBusy) {
                                         isBusy = true;
                                         frame = image;
@@ -932,8 +974,29 @@ class _AttendanceCheckoutPageState extends State<AttendanceCheckoutPage> {
 
   @override
   void dispose() {
+    // Stop camera stream first to prevent callbacks
+    try {
+      if (_controller != null && _controller!.value.isInitialized) {
+        _controller!.stopImageStream();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error stopping camera stream during dispose: $e');
+      }
+    }
+    
+    // Dispose camera controller
     _controller?.dispose();
-    detector.close();
+    
+    // Close face detector
+    try {
+      detector.close();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error closing face detector: $e');
+      }
+    }
+    
     super.dispose();
   }
 }

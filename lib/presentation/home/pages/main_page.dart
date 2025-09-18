@@ -1,9 +1,14 @@
 import 'package:absence_kasau_app/presentation/home/pages/history_page.dart';
 import 'package:flutter/material.dart';
-import 'package:absence_kasau_app/presentation/home/pages/setting_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
+import 'package:absence_kasau_app/presentation/home/bloc/profile/profile_bloc.dart';
+import 'package:absence_kasau_app/data/datasources/profile_remote_datasource.dart';
+import 'package:absence_kasau_app/data/datasources/auth_local_datasource.dart';
 
 import '../../../core/core.dart';
 import 'home_page.dart';
+import 'profile_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -17,8 +22,16 @@ class _MainPageState extends State<MainPage> {
   final _widgets = [
     const HomePage(),
     const HistoryPage(),
-    const SettingPage(),
-    const Center(child: Text('This is profile page')),
+    // const SettingPage(),
+    BlocProvider(
+      create: (context) => ProfileBloc(
+        profileRemoteDataSource: ProfileRemoteDataSourceImpl(
+          client: http.Client(),
+          authLocalDataSource: AuthLocalDatasource(),
+        ),
+      ),
+      child: const ProfilePage(),
+    ),
   ];
 
   @override
@@ -63,7 +76,7 @@ class _MainPageState extends State<MainPage> {
                     BlendMode.srcIn,
                   ),
                 ),
-                label: 'Home',
+                label: 'Beranda',
               ),
               BottomNavigationBarItem(
                 icon: Assets.icons.nav.history.svg(
@@ -72,17 +85,17 @@ class _MainPageState extends State<MainPage> {
                     BlendMode.srcIn,
                   ),
                 ),
-                label: 'History',
+                label: 'Riwayat',
               ),
-              BottomNavigationBarItem(
-                icon: Assets.icons.nav.setting.svg(
-                  colorFilter: ColorFilter.mode(
-                    _selectedIndex == 2 ? AppColors.primary : AppColors.grey,
-                    BlendMode.srcIn,
-                  ),
-                ),
-                label: 'Setting',
-              ),
+              // BottomNavigationBarItem(
+              //   icon: Assets.icons.nav.setting.svg(
+              //     colorFilter: ColorFilter.mode(
+              //       _selectedIndex == 2 ? AppColors.primary : AppColors.grey,
+              //       BlendMode.srcIn,
+              //     ),
+              //   ),
+              //   label: 'Pengaturan',
+              // ),
               BottomNavigationBarItem(
                 icon: Assets.icons.nav.profile.svg(
                   colorFilter: ColorFilter.mode(
@@ -90,7 +103,7 @@ class _MainPageState extends State<MainPage> {
                     BlendMode.srcIn,
                   ),
                 ),
-                label: 'Profile',
+                label: 'Profil',
               ),
             ],
           ),

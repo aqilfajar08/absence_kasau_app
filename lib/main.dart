@@ -1,3 +1,4 @@
+import 'package:absence_kasau_app/core/services/camera_manager.dart';
 import 'package:absence_kasau_app/data/datasources/firebase_messaging_remote_datasourece.dart';
 import 'package:absence_kasau_app/firebase_options.dart';
 import 'package:absence_kasau_app/presentation/home/bloc/get_attendance_by_date/get_attendance_by_date_bloc.dart';
@@ -26,12 +27,39 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await FirebaseMessagingRemoteDatasource().initialize();
-  // await FirebaseMessagingRemoteDatasourece().initFCM();
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    // Clean up camera resources when app is disposed
+    CameraManager().dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.detached) {
+      // App is being terminated, clean up camera resources
+      CameraManager().dispose();
+    }
+  }
 
   // This widget is the root of your application.
   @override
@@ -89,7 +117,7 @@ class MyApp extends StatelessWidget {
         title: 'Kasau Absence Flutter',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+          // colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
           dividerTheme:
               DividerThemeData(color: AppColors.light.withOpacity(0.5)),
           // dialogTheme: const DialogTheme(elevation: 0),

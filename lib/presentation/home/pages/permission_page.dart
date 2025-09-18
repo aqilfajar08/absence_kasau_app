@@ -125,9 +125,10 @@ class _PermissionPageState extends State<PermissionPage> {
                   setState(() {
                     imagePath = null;
                   });
+                  
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Submit Izin success'),
+                      content: Text('Pengajuan izin berhasil'),
                       backgroundColor: AppColors.primary,
                     ),
                   );

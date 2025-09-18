@@ -69,8 +69,16 @@ class $AssetsIconsGen {
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
+  /// File path: assets/images/background.jpg
+  AssetGenImage get background =>
+      const AssetGenImage('assets/images/background.jpg');
+
   /// File path: assets/images/bg_home.png
   AssetGenImage get bgHome => const AssetGenImage('assets/images/bg_home.png');
+
+  /// File path: assets/images/blank-profile-circle.png
+  AssetGenImage get blankProfileCircle =>
+      const AssetGenImage('assets/images/blank-profile-circle.png');
 
   /// File path: assets/images/failed.png
   AssetGenImage get failed => const AssetGenImage('assets/images/failed.png');
@@ -78,6 +86,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/img_my_location.png
   AssetGenImage get imgMyLocation =>
       const AssetGenImage('assets/images/img_my_location.png');
+
+  /// File path: assets/images/log-in.jpg
+  AssetGenImage get logIn => const AssetGenImage('assets/images/log-in.jpg');
 
   /// File path: assets/images/logo.png
   AssetGenImage get logo => const AssetGenImage('assets/images/logo.png');
@@ -98,24 +109,22 @@ class $AssetsImagesGen {
   AssetGenImage get splashPage =>
       const AssetGenImage('assets/images/splash-page.jpg');
 
-  /// File path: assets/images/log-in.jpg
-  AssetGenImage get logIn =>
-      const AssetGenImage('assets/images/log-in.jpg');
-
   /// File path: assets/images/success.png
   AssetGenImage get success => const AssetGenImage('assets/images/success.png');
 
   /// List of all assets
   List<AssetGenImage> get values => [
+    background,
     bgHome,
+    blankProfileCircle,
     failed,
     imgMyLocation,
+    logIn,
     logo,
     logoCodeWithBahri,
     logoWhite,
     seeLocation,
     splashPage,
-    logIn,
     success,
   ];
 }
