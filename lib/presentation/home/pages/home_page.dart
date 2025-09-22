@@ -486,15 +486,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       builder: (context, state) {
                         final latitudePoint = state.maybeWhen(
                           orElse: () => 0.0,
-                          success: (data) => double.parse(data.latitude!),
+                          success: (data) => _safeParseDouble(data.latitude),
                         );
                         final longitudePoint = state.maybeWhen(
                           orElse: () => 0.0,
-                          success: (data) => double.parse(data.longitude!),
+                          success: (data) => _safeParseDouble(data.longitude),
                         );
                         final radiusPoint = state.maybeWhen(
                           orElse: () => 0.0,
-                          success: (data) => double.parse(data.radiusKm!),
+                          success: (data) => _safeParseDouble(data.radiusKm),
                         );
                         return BlocConsumer<IsCheckinBloc, IsCheckinState>(
                           listener: (context, state) {
@@ -602,15 +602,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       builder: (context, state) {
                         final latitudePoint = state.maybeWhen(
                           orElse: () => 0.0,
-                          success: (data) => double.parse(data.latitude!),
+                          success: (data) => _safeParseDouble(data.latitude),
                         );
                         final longitudePoint = state.maybeWhen(
                           orElse: () => 0.0,
-                          success: (data) => double.parse(data.longitude!),
+                          success: (data) => _safeParseDouble(data.longitude),
                         );
                         final radiusPoint = state.maybeWhen(
                           orElse: () => 0.0,
-                          success: (data) => double.parse(data.radiusKm!),
+                          success: (data) => _safeParseDouble(data.radiusKm),
                         );
                         return BlocBuilder<IsCheckinBloc, IsCheckinState>(
                           builder: (context, state) {
@@ -774,16 +774,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             builder: (context, state) {
                               final latitudePoint = state.maybeWhen(
                                 orElse: () => 0.0,
-                                success: (data) => double.parse(data.latitude!),
+                                success: (data) => _safeParseDouble(data.latitude),
                               );
                               final longitudePoint = state.maybeWhen(
                                 orElse: () => 0.0,
                                 success:
-                                    (data) => double.parse(data.longitude!),
+                                    (data) => _safeParseDouble(data.longitude),
                               );
                               final radiusPoint = state.maybeWhen(
                                 orElse: () => 0.0,
-                                success: (data) => double.parse(data.radiusKm!),
+                                success: (data) => _safeParseDouble(data.radiusKm),
                               );
                               return Button.filled(
                                 onPressed: () async {
@@ -984,5 +984,39 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  /// Safely parse string to double with error handling
+  double _safeParseDouble(String? value) {
+    if (value == null || value.isEmpty) {
+      debugPrint('Coordinate value is null or empty');
+      return 0.0;
+    }
+    
+    debugPrint('Parsing coordinate value: "$value"');
+    
+    try {
+      // Clean the string - remove any extra characters or formatting issues
+      String cleanValue = value.trim();
+      
+      // Handle potential issues with double decimal points or invalid formatting
+      if (cleanValue.contains('.')) {
+        // Split by decimal point and take only the first part with one decimal
+        List<String> parts = cleanValue.split('.');
+        if (parts.length > 2) {
+          // If there are multiple decimal points, reconstruct with only one
+          debugPrint('Found multiple decimal points in "$cleanValue", cleaning to "${parts[0]}.${parts[1]}"');
+          cleanValue = '${parts[0]}.${parts[1]}';
+        }
+      }
+      
+      double result = double.parse(cleanValue);
+      debugPrint('Successfully parsed "$value" to $result');
+      return result;
+    } catch (e) {
+      // Log the error for debugging
+      debugPrint('❌ Error parsing coordinate value: "$value" - Error: $e');
+      return 0.0;
+    }
   }
 }
