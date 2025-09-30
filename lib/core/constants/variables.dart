@@ -1,6 +1,6 @@
 class Variables {
   static const String appName = 'Kasau Absence Application';
-  static const String baseUrl = 'http://192.168.1.28:8000';
+  static const String baseUrl = 'https://absenkasau.web.id';
   
   /// Constructs a full image URL from a relative path
   static String getImageUrl(String? relativePath) {
